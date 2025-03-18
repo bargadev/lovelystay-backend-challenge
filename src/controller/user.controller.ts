@@ -20,15 +20,17 @@ const findAndCreateUserByUsername = async (username: string) => {
       locationData?.location_id || null,
     );
 
-    // setImmediate(async () => {
-    if (userData.repos_url) {
-      const langs = await githubService.fetchUserLanguages(userData.repos_url);
+    setImmediate(async () => {
+      if (userData.repos_url) {
+        const langs = await githubService.fetchUserLanguages(
+          userData.repos_url,
+        );
 
-      if (langs.length) {
-        await languageService.insertLanguageList(langs, storedUser.user_id);
+        if (langs.length) {
+          await languageService.insertLanguageList(langs, storedUser.user_id);
+        }
       }
-    }
-    // });
+    });
   }
 
   return userData;
