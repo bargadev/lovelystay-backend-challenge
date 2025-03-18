@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
-import { languageController } from './controller/language.controller';
-import { locationController } from './controller/location.controller';
-import { userController } from './controller/user.controller';
+import { languageController } from './controller/language-controller';
+import { locationController } from './controller/location-controller';
+import { userController } from './controller/user-controller';
 
 const mainMenuOptions = [
   { name: 'Find GitHub user', value: 'findUserByUsername' },

@@ -1,7 +1,7 @@
+import { LocationData } from '../model/location-data';
 import { githubService } from '../service/github-service';
-import { LocationData } from './../model/location-data';
-import { languageService } from './../service/language-service';
-import { userService } from './../service/user-service';
+import { languageService } from '../service/language-service';
+import { userService } from '../service/user-service';
 
 const findAndCreateUserByUsername = async (username: string) => {
   let userData = await userService.findUserByUsername(username);
@@ -9,7 +9,7 @@ const findAndCreateUserByUsername = async (username: string) => {
   if (!userData) {
     userData = await githubService.fetchGitHubUser(username);
 
-    let locationData: LocationData;
+    let locationData: LocationData | undefined;
 
     if (userData.location) {
       locationData = await userService.saveUserLocation(userData.location);

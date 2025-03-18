@@ -1,4 +1,4 @@
-import { locationService } from './../service/location-service';
+import { locationService } from '../service/location-service';
 
 const findAllLocations = async () => {
   const users = await locationService.findAllLocations();

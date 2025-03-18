@@ -1,5 +1,5 @@
-import { LocationData } from 'src/model/location-data';
-import { db } from './../infra/db';
+import { LocationData } from '../model/location-data';
+import { conn } from './../infra/db';
 import { UserData } from './../model/user-data';
 
 import { ulid } from 'ulid';
@@ -8,7 +8,7 @@ const TABLE = '"user"';
 
 const insertUser = async (
   userData: UserData,
-  locationId: string,
+  locationId: string | null,
 ): Promise<{ user_id: string }> => {
   const query = `
     INSERT INTO ${TABLE} (
@@ -49,7 +49,7 @@ const insertUser = async (
     userData.updated_at,
   ];
 
-  return await db.one(query, values);
+  return await conn().one(query, values);
 };
 
 const findUserByUsername = async (username: string) => {
@@ -57,7 +57,7 @@ const findUserByUsername = async (username: string) => {
     SELECT * FROM ${TABLE} WHERE username = $1
   `;
 
-  return await db.oneOrNone(query, [username]);
+  return await conn().oneOrNone(query, [username]);
 };
 
 const findAllUsers = async () => {
@@ -67,7 +67,7 @@ const findAllUsers = async () => {
     LEFT JOIN location l ON u.location_id = l.location_id;
   `;
 
-  const users = await db.any(query);
+  const users = await conn().any(query);
 
   if (users.length === 0) {
     console.log('No users found.');
@@ -85,7 +85,7 @@ const saveUserLocation = async (location: string): Promise<LocationData> => {
     RETURNING *
   `;
 
-  return await db.one(query, [ulid(), location]);
+  return await conn().one(query, [ulid(), location]);
 };
 
 const findUsersByLocation = async (location: string) => {
@@ -96,7 +96,7 @@ const findUsersByLocation = async (location: string) => {
     WHERE l.location ${location === null ? 'IS NULL' : '= $1'};
   `;
 
-  return await db.any(query, [location]);
+  return await conn().any(query, [location]);
 };
 
 const findUsersByLanguage = async (language: string) => {
@@ -115,7 +115,7 @@ const findUsersByLanguage = async (language: string) => {
     );
   `;
 
-  return await db.any(query, [language]);
+  return await conn().any(query, [language]);
 };
 
 export const userService = {

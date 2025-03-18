@@ -23,11 +23,14 @@ const fetchGitHubUser = async (username: string): Promise<UserData> => {
   };
 };
 
-const fetchUserLanguages = async (reposUrl: string) => {
+const fetchUserLanguages = async (reposUrl: string): Promise<string[]> => {
   const reposResponse = await axios.get(reposUrl);
   const languageList = reposResponse.data.map((repo: any) => repo.language);
 
-  return R.pipe(R.filter(R.identity), R.uniq)(languageList);
+  return R.pipe(
+    R.filter((lang): lang is string => typeof lang === 'string'),
+    R.uniq,
+  )(languageList);
 };
 
 export const githubService = {

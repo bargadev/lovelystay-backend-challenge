@@ -1,9 +1,10 @@
+import { conn } from './../infra/db';
+
 import { ulid } from 'ulid';
-import { db } from './../infra/db';
 
 const insertLanguageList = async (languages: string[], userId: string) => {
   const insertLanguagesQuery = languages.map((lang) => {
-    return db.one(
+    return conn().one(
       `
         INSERT INTO "language" (language_id, name) 
         VALUES ($1, $2)
@@ -20,7 +21,7 @@ const insertLanguageList = async (languages: string[], userId: string) => {
   const languageIds = languagesData.map((result) => result.language_id);
 
   const insertUserLanguageQuery = languageIds.map((languageId) => {
-    return db.one(
+    return conn().one(
       'INSERT INTO "user_language" (user_id, language_id) VALUES ($1, $2) ' +
         'ON CONFLICT DO NOTHING ' +
         'RETURNING language_id',
@@ -38,7 +39,7 @@ const findAllLanguages = async () => {
     SELECT * FROM "language";
   `;
 
-  return await db.any(query);
+  return await conn().any(query);
 };
 
 export const languageService = {

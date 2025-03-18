@@ -1,11 +1,11 @@
-import { db } from '../infra/db';
+import { conn } from './../infra/db';
 
 const findAllLocations = async () => {
   const query = `
     SELECT * FROM location;
   `;
 
-  return await db.any(query);
+  return await conn().any(query);
 };
 
 export const locationService = {

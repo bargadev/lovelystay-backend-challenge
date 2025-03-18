@@ -1,4 +1,4 @@
-import { languageService } from './../service/language-service';
+import { languageService } from '../service/language-service';
 
 const findAllLanguages = async () => {
   const languages = await languageService.findAllLanguages();
