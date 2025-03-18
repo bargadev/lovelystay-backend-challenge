@@ -5,7 +5,7 @@ const findAllLocations = async () => {
     SELECT * FROM location;
   `;
 
-  return await db.many(query);
+  return await db.any(query);
 };
 
 export const locationService = {

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import * as R from 'ramda';
-import { UserData } from './model/user-data';
+import { UserData } from '../model/user-data';
 
 const GITHUB_API = 'https://api.github.com/users/';
 
-export const fetchGitHubUser = async (username: string): Promise<UserData> => {
+const fetchGitHubUser = async (username: string): Promise<UserData> => {
   const response = await axios.get(`${GITHUB_API}${username}`);
   const data = response.data;
 
@@ -23,9 +23,14 @@ export const fetchGitHubUser = async (username: string): Promise<UserData> => {
   };
 };
 
-export const fetchUserLanguages = async (reposUrl: string) => {
+const fetchUserLanguages = async (reposUrl: string) => {
   const reposResponse = await axios.get(reposUrl);
   const languageList = reposResponse.data.map((repo: any) => repo.language);
 
   return R.pipe(R.filter(R.identity), R.uniq)(languageList);
+};
+
+export const githubService = {
+  fetchGitHubUser,
+  fetchUserLanguages,
 };

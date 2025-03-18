@@ -4,12 +4,15 @@ import { UserData } from './../model/user-data';
 
 import { ulid } from 'ulid';
 
-const TABLE = '"github_user"';
+const TABLE = '"user"';
 
-const createUser = async (userData: UserData, locationId: string) => {
+const insertUser = async (
+  userData: UserData,
+  locationId: string,
+): Promise<{ user_id: string }> => {
   const query = `
     INSERT INTO ${TABLE} (
-      github_user_id, username, fullname, location_id,
+      user_id, username, fullname, location_id,
       public_repositories, followers, following,
       profile_url, avatar_url, created_at, updated_at
     )
@@ -59,15 +62,19 @@ const findUserByUsername = async (username: string) => {
 
 const findAllUsers = async () => {
   const query = `
-    SELECT gu.github_user_id, gu.username, gu.fullname, l.location
-    FROM github_user gu
-    LEFT JOIN location l ON gu.location_id = l.location_id;
+    SELECT u.user_id, u.username, u.fullname, l.location
+    FROM "user" u
+    LEFT JOIN location l ON u.location_id = l.location_id;
   `;
 
-  return await db.many(query);
-};
+  const users = await db.any(query);
 
-// lucasbittencurt
+  if (users.length === 0) {
+    console.log('No users found.');
+  }
+
+  return users;
+};
 
 const saveUserLocation = async (location: string): Promise<LocationData> => {
   const query = `
@@ -83,19 +90,39 @@ const saveUserLocation = async (location: string): Promise<LocationData> => {
 
 const findUsersByLocation = async (location: string) => {
   const query = `
-    SELECT gu.github_user_id, gu.username, gu.fullname, l.location
-    FROM github_user gu
-    LEFT JOIN location l ON gu.location_id = l.location_id
+    SELECT u.user_id, u.username, u.fullname, l.location
+    FROM "user" u
+    LEFT JOIN location l ON u.location_id = l.location_id
     WHERE l.location ${location === null ? 'IS NULL' : '= $1'};
   `;
 
-  return await db.many(query, [location]);
+  return await db.any(query, [location]);
+};
+
+const findUsersByLanguage = async (language: string) => {
+  const query = `
+    SELECT u.user_id, u.username, u.fullname, l.location
+    FROM "user" u
+    LEFT JOIN location l ON u.location_id = l.location_id
+    WHERE u.user_id IN (
+      SELECT user_id
+      FROM user_language
+      WHERE language_id = (
+        SELECT language_id
+        FROM language
+        WHERE name = $1
+      )
+    );
+  `;
+
+  return await db.any(query, [language]);
 };
 
 export const userService = {
-  createUser,
+  createUser: insertUser,
   findUserByUsername,
   findAllUsers,
   saveUserLocation,
   findUsersByLocation,
+  findUsersByLanguage,
 };

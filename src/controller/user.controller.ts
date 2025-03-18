@@ -1,12 +1,13 @@
-import { LocationData } from 'src/model/location-data';
-import { fetchGitHubUser } from './../github';
+import { githubService } from '../service/github-service';
+import { LocationData } from './../model/location-data';
+import { languageService } from './../service/language-service';
 import { userService } from './../service/user-service';
 
 const findAndCreateUserByUsername = async (username: string) => {
   let userData = await userService.findUserByUsername(username);
 
   if (!userData) {
-    userData = await fetchGitHubUser(username);
+    userData = await githubService.fetchGitHubUser(username);
 
     let locationData: LocationData;
 
@@ -14,7 +15,21 @@ const findAndCreateUserByUsername = async (username: string) => {
       locationData = await userService.saveUserLocation(userData.location);
     }
 
-    userService.createUser(userData, locationData?.location_id || null);
+    const storedUser = await userService.createUser(
+      userData,
+      locationData?.location_id || null,
+    );
+
+    // setImmediate(async () => {
+    if (userData.repos_url) {
+      const langs = await githubService.fetchUserLanguages(userData.repos_url);
+
+      if (langs.length) {
+        console.log(langs);
+        await languageService.insertLanguageList(langs, storedUser.user_id);
+      }
+    }
+    // });
   }
 
   return userData;
@@ -32,8 +47,15 @@ const findUsersByLocation = async (location: string) => {
   return users;
 };
 
+const findUsersByLanguage = async (language: string) => {
+  const users = await userService.findUsersByLanguage(language);
+
+  return users;
+};
+
 export const userController = {
   findAndCreateUserByUsername,
   findAllUsers,
   findUsersByLocation,
+  findUsersByLanguage,
 };
