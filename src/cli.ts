@@ -36,6 +36,7 @@ const promptInput = async (msg: string): Promise<string> => {
 };
 
 const GREEN = '\x1b[32m';
+const RED = '\x1b[31m';
 const RESET = '\x1b[0m';
 
 export const cli = async () => {
@@ -50,6 +51,11 @@ export const cli = async () => {
           const username = await promptInput('Enter GitHub username:');
           const user =
             await userController.findAndCreateUserByUsername(username);
+
+          if (!user) {
+            console.log(`${RED}User not found on GitHub.${RESET}`);
+            return;
+          }
 
           console.log(`${GREEN}User Info:${RESET}`);
           console.log(`${GREEN}${JSON.stringify(user, null, 2)}${RESET}`);

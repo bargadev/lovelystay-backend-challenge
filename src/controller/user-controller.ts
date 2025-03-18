@@ -9,6 +9,10 @@ const findAndCreateUserByUsername = async (username: string) => {
   if (!userData) {
     userData = await githubService.fetchGitHubUser(username);
 
+    if (!userData) {
+      return null;
+    }
+
     let locationData: LocationData | undefined;
 
     if (userData.location) {
