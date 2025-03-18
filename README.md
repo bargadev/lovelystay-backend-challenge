@@ -65,6 +65,16 @@ npm start
 
 This will use `ts-node` to execute the `src/main.ts` file.
 
+### 7. Running Tests
+
+To run the tests, execute the following command:
+
+```bash
+npm test
+```
+
+This will run the tests using Jest.
+
 ## Available Scripts
 
 Here are the available scripts in the project:
