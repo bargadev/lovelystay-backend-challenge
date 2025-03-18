@@ -1,19 +1,29 @@
-import * as db from '../db';
-import { fetchGitHubUser } from '../github';
+import { LocationData } from 'src/model/location-data';
+import { fetchGitHubUser } from './../github';
+import { userService } from './../service/user-service';
 
-export const findUserByUsername = async (username: string) => {
-  const userData = await fetchGitHubUser(username);
+export const findAndCreateUserByUsername = async (username: string) => {
+  let userData = await userService.findUserByUsername(username);
 
-  const storedUser = await db.upsertUser(userData);
+  if (!userData) {
+    userData = await fetchGitHubUser(username);
 
-  console.log('userData: ', userData);
+    let locationData: LocationData;
 
-  // console.log('storedUser: ', storedUser);
-  // const user = await db.fetchUser(username);
-  // if (!user) {
-  //   throw new Error(`User ${username} not found`);
-  // }
-  // return user;
+    if (userData.location) {
+      locationData = await userService.saveUserLocation(userData.location);
+    }
+
+    userService.createUser(userData, locationData?.location_id || null);
+  }
+
+  return userData;
+};
+
+export const findAllUsers = async () => {
+  const users = await userService.findAllUsers();
+
+  return users;
 };
 
 // export const main = async (opts: Options) => {
