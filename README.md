@@ -33,7 +33,7 @@ npm install
 
 Ensure you have a `.env` file in the root directory of the project for any environment-specific variables (such as database credentials). The project uses the `dotenv` library to load environment variables.
 
-You can use the sample `.env.example` file if it's available or create your own.
+You can use the sample `.env` file if it's available or create your own.
 
 ### 4. Running with Docker (Optional)
 
