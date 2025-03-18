@@ -25,7 +25,6 @@ const findAndCreateUserByUsername = async (username: string) => {
       const langs = await githubService.fetchUserLanguages(userData.repos_url);
 
       if (langs.length) {
-        console.log(langs);
         await languageService.insertLanguageList(langs, storedUser.user_id);
       }
     }
