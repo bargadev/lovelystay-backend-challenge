@@ -1,5 +1,8 @@
 import inquirer from 'inquirer';
-import { findUserByUsername } from './controller/user.controller';
+import {
+  findAllUsers,
+  findAndCreateUserByUsername,
+} from './controller/user.controller';
 
 const promptOptions = async (): Promise<string> => {
   const { option } = await inquirer.prompt([
@@ -8,13 +11,15 @@ const promptOptions = async (): Promise<string> => {
       name: 'option',
       message: 'Select an option:',
       choices: [
-        { name: 'Fetch GitHub user', value: 'fetch' },
-        { name: 'List all users', value: 'list' },
+        { name: 'Find GitHub user', value: 'findUserByUsername' },
+        { name: 'List all users', value: 'listAllUsers' },
         { name: 'List users by location', value: 'list_location' },
         { name: 'List users by language', value: 'list_lang' },
+        { name: 'Exit', value: 'exit' },
       ],
     },
   ]);
+
   return option;
 };
 
@@ -29,35 +34,53 @@ const promptInput = async (msg: string): Promise<string> => {
   return value;
 };
 
-(async () => {
+const GREEN = '\x1b[32m';
+const RESET = '\x1b[0m';
+
+const main = async () => {
   try {
-    const option = await promptOptions();
+    let exit = false;
 
-    const actions = {
-      async fetch() {
-        const username = await promptInput('Enter GitHub username:');
-        await findUserByUsername(username);
-      },
-      async list() {
-        // await main({ list: false });
-      },
-      async list_location() {
-        const location = await promptInput('Enter location:');
-        // await main({ list: location });
-      },
-      async list_lang() {
-        const language = await promptInput('Enter language:');
-        // await main({ listLang: language });
-      },
-    };
+    while (!exit) {
+      const option = await promptOptions();
 
-    // Execute the corresponding function if the option exists
-    if (actions[option]) {
-      await actions[option]();
-    } else {
-      console.log('Invalid option selected.');
+      const actions = {
+        async findUserByUsername() {
+          const username = await promptInput('Enter GitHub username:');
+          const user = await findAndCreateUserByUsername(username);
+
+          console.log(`${GREEN}User Info:${RESET}`);
+          console.log(`${GREEN}${JSON.stringify(user, null, 2)}${RESET}`);
+        },
+        async listAllUsers() {
+          const users = await findAllUsers();
+
+          console.log(`${GREEN}All Users:${RESET}`);
+          console.table(users);
+        },
+        async list_location() {
+          const location = await promptInput('Enter location:');
+          // Implement list_location logic here
+        },
+        async list_lang() {
+          const language = await promptInput('Enter language:');
+          // Implement list_lang logic here
+        },
+        async exit() {
+          console.log('Exiting...');
+          exit = true;
+        },
+      };
+
+      if (actions[option]) {
+        await actions[option]();
+      } else {
+        console.log('Invalid option selected.');
+      }
     }
   } catch (err) {
     console.error(err);
   }
-})();
+};
+
+main();
