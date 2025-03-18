@@ -1,22 +1,22 @@
 import inquirer from 'inquirer';
-import {
-  findAllUsers,
-  findAndCreateUserByUsername,
-} from './controller/user.controller';
+import { locationController } from './controller/location.controller';
+import { userController } from './controller/user.controller';
 
-const promptOptions = async (): Promise<string> => {
+const mainMenuOptions = [
+  { name: 'Find GitHub user', value: 'findUserByUsername' },
+  { name: 'List all users', value: 'listAllUsers' },
+  { name: 'List users by location', value: 'listAllLocation' },
+  { name: 'List users by language', value: 'list_lang' },
+  { name: 'Exit', value: 'exit' },
+];
+
+const promptOptions = async (options: any[]): Promise<string> => {
   const { option } = await inquirer.prompt([
     {
       type: 'list',
       name: 'option',
       message: 'Select an option:',
-      choices: [
-        { name: 'Find GitHub user', value: 'findUserByUsername' },
-        { name: 'List all users', value: 'listAllUsers' },
-        { name: 'List users by location', value: 'list_location' },
-        { name: 'List users by language', value: 'list_lang' },
-        { name: 'Exit', value: 'exit' },
-      ],
+      choices: options,
     },
   ]);
 
@@ -42,25 +42,41 @@ const main = async () => {
     let exit = false;
 
     while (!exit) {
-      const option = await promptOptions();
+      const option = await promptOptions(mainMenuOptions);
 
       const actions = {
         async findUserByUsername() {
           const username = await promptInput('Enter GitHub username:');
-          const user = await findAndCreateUserByUsername(username);
+          const user =
+            await userController.findAndCreateUserByUsername(username);
 
           console.log(`${GREEN}User Info:${RESET}`);
           console.log(`${GREEN}${JSON.stringify(user, null, 2)}${RESET}`);
         },
         async listAllUsers() {
-          const users = await findAllUsers();
+          const users = await userController.findAllUsers();
 
           console.log(`${GREEN}All Users:${RESET}`);
           console.table(users);
         },
-        async list_location() {
-          const location = await promptInput('Enter location:');
-          // Implement list_location logic here
+        async listAllLocation() {
+          const locations = await locationController.findAllLocations();
+
+          const locationOptions = locations.map((location) => ({
+            name: location.location,
+            value: location.location,
+          }));
+
+          const selectedLocation = await promptOptions([
+            ...[{ name: 'null', value: null }],
+            ...locationOptions,
+          ]);
+
+          const users =
+            await userController.findUsersByLocation(selectedLocation);
+
+          console.log(`${GREEN}All Users from ${selectedLocation}:${RESET}`);
+          console.table(users);
         },
         async list_lang() {
           const language = await promptInput('Enter language:');

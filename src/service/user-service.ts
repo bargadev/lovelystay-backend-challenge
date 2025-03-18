@@ -81,9 +81,21 @@ const saveUserLocation = async (location: string): Promise<LocationData> => {
   return await db.one(query, [ulid(), location]);
 };
 
+const findUsersByLocation = async (location: string) => {
+  const query = `
+    SELECT gu.github_user_id, gu.username, gu.fullname, l.location
+    FROM github_user gu
+    LEFT JOIN location l ON gu.location_id = l.location_id
+    WHERE l.location ${location === null ? 'IS NULL' : '= $1'};
+  `;
+
+  return await db.many(query, [location]);
+};
+
 export const userService = {
   createUser,
   findUserByUsername,
   findAllUsers,
   saveUserLocation,
+  findUsersByLocation,
 };
