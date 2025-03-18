@@ -73,3 +73,5 @@ Here are the available scripts in the project:
 - `npm run migration:run`: Run the migrations.
 - `npm run docker:up`: Start the project in Docker containers.
 - `npm start`: Start the project locally using `ts-node`.
+- `npm test`: Run the tests using Jest.
+- `npm run test:watch`: Run the tests in watch mode.
